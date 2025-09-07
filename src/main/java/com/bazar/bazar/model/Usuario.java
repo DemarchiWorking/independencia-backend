@@ -26,4 +26,5 @@ public class Usuario {
     private Long pontos;
     private String cpf;
     private String cnpj;
+    private Boolean loja;
 }

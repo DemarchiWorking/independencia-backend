@@ -62,9 +62,8 @@ public class PedidoService {
 
         Usuario vendedor = usuarioRepository.findById(pedidoRequest.getVendedorId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Vendedor não encontrado com ID: " + pedidoRequest.getVendedorId()));
-
         Pedido novoPedido = new Pedido(cliente, vendedor);
-        novoPedido.setEnderecoEntrega(enderecoEntrega.getId());
+        novoPedido.setEnderecoEntrega(enderecoEntrega);
         novoPedido.setDataCriacao(LocalDateTime.now());
         novoPedido.setDataEntrega(LocalDateTime.now());
         novoPedido.setRemote(pedidoRequest.getRemote());

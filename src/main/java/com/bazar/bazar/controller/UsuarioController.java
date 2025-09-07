@@ -1,5 +1,7 @@
 package com.bazar.bazar.controller;
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -15,9 +17,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bazar.bazar.dto.UsuarioDTO;
-import com.bazar.bazar.model.Produto;
 import com.bazar.bazar.model.Usuario;
 import com.bazar.bazar.repositories.UsuarioRepository;
+import com.bazar.bazar.request.StatusRequest;
+import com.bazar.bazar.request.UsuarioUpdateRequest;
 import com.bazar.bazar.response.PaginaResponse;
 import com.bazar.bazar.service.UsuarioService;
 
@@ -46,7 +49,7 @@ public class UsuarioController {
 
         if (principal instanceof Usuario) {
             Usuario usuarioLogado = (Usuario) principal;
-            UsuarioDTO usuarioDto = new UsuarioDTO(usuarioLogado.getId(), usuarioLogado.getNome(), usuarioLogado.getEmail(), usuarioLogado.getCpf(), usuarioLogado.getCnpj(), usuarioLogado.getTelefone(), usuarioLogado.getFoto(), usuarioLogado.getPontos());
+            UsuarioDTO usuarioDto = new UsuarioDTO(usuarioLogado.getId(), usuarioLogado.getNome(), usuarioLogado.getEmail(), usuarioLogado.getCpf(), usuarioLogado.getCnpj(), usuarioLogado.getTelefone(), usuarioLogado.getFoto(), usuarioLogado.getPontos(), usuarioLogado.getLoja());
             return ResponseEntity.ok(usuarioDto);
         }
                 return ResponseEntity.notFound().build();
@@ -70,9 +73,9 @@ public class UsuarioController {
         return ResponseEntity.badRequest().body("Principal não é uma instância de Usuario.");
     }
     @PatchMapping("/alterar")
-    public ResponseEntity<UsuarioDTO> updateUsuario(@RequestBody UsuarioDTO usuarioDTO) {
+    public ResponseEntity<UsuarioDTO> updateUsuario(@RequestBody UsuarioUpdateRequest usuarioDTO) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        
+        System.out.println(usuarioDTO.getNome());
         if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
             return ResponseEntity.status(401).build();
         }
@@ -90,7 +93,8 @@ public class UsuarioController {
                 usuarioAtualizado.getCnpj(),
                 usuarioAtualizado.getTelefone(),
                 usuarioAtualizado.getFoto(),
-                usuarioAtualizado.getPontos()
+                usuarioAtualizado.getPontos(),
+                usuarioAtualizado.getLoja()
             );
            
             return ResponseEntity.ok(usuarioDto);
@@ -98,11 +102,40 @@ public class UsuarioController {
 
         return ResponseEntity.status(404).build();
     }
+    @PatchMapping("/loja/status")
+    public ResponseEntity<UsuarioDTO> updateLoja(@RequestBody StatusRequest status) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal())) {
+            return ResponseEntity.status(401).build();
+        }
+        Object principal = authentication.getPrincipal();
+
+        if (principal instanceof Usuario) {
+            Usuario usuarioLogado = (Usuario) principal;
+            Usuario usuarioAtualizado = usuarioService.alterarUsuarioLoja(usuarioLogado.getId(), status.status());
+
+            UsuarioDTO usuarioDto = new UsuarioDTO(
+                usuarioAtualizado.getId(),
+                usuarioAtualizado.getNome(),
+                usuarioAtualizado.getEmail(),
+                usuarioAtualizado.getCpf(),
+                usuarioAtualizado.getCnpj(),
+                usuarioAtualizado.getTelefone(),
+                usuarioAtualizado.getFoto(),
+                usuarioAtualizado.getPontos(),
+                usuarioAtualizado.getLoja()
+            );
+
+            return ResponseEntity.ok(usuarioDto);
+        }
+
+        return ResponseEntity.status(404).build();
+    }
     @GetMapping("perfis")
-    public ResponseEntity<PaginaResponse<UsuarioDTO>> getAllUsuarios(
+    public ResponseEntity<PaginaResponse<UsuarioDTO>> getAllUsuarios(String nome,
         @PageableDefault(page = 0, size = 12, sort = "nome") Pageable pageable) {
-        Page<UsuarioDTO> usuariosPage = usuarioService.listarTodosUsuarios(pageable);
+        Page<UsuarioDTO> usuariosPage = usuarioService.buscarUsuarioPorNome(nome, pageable);
         
         PaginaResponse<UsuarioDTO> resposta = new PaginaResponse<>();
             resposta.setContent(usuariosPage.getContent());
@@ -114,6 +147,11 @@ public class UsuarioController {
         return new ResponseEntity<>(resposta, HttpStatus.OK);
     }
 
+    @GetMapping("/dono")
+    public ResponseEntity<Usuario> getDonoLoja(String email) {
+        Usuario usuarioDonoLoja = usuarioService.buscarDonoLoja(email);
+        return ResponseEntity.ok(usuarioDonoLoja);
+    }
 }
 /*
     @GetMapping

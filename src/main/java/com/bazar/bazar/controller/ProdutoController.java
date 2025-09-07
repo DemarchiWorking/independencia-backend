@@ -129,6 +129,11 @@ public class ProdutoController {
         List<Produto> meusProdutos = produtoService.getMeusProdutos();
         return ResponseEntity.ok(meusProdutos);
     }
+    @GetMapping("/loja")
+    public ResponseEntity<List<Produto>> getProdutosUsuario(String email) {
+        List<Produto> meusProdutos = produtoService.buscarProdutosUsuario(email);
+        return ResponseEntity.ok(meusProdutos);
+    }
     // Endpoint para atualizar um produto
     // PUT http://localhost:8081/api/produtos/{id}
     @PatchMapping("/{id}")

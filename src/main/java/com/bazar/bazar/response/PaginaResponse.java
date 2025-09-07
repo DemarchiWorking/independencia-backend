@@ -11,6 +11,17 @@ public class PaginaResponse<T> {
     public List<T> getContent() {
         return content;
     }
+
+        public PaginaResponse() {
+        }
+
+        public PaginaResponse(List<T> content, int page, int size, long totalElements, int totalPages) {
+        this.content = content;
+        this.page = page;
+        this.size = size;
+        this.totalElements = totalElements;
+        this.totalPages = totalPages;
+    }
     public void setContent(List<T> content) {
         this.content = content;
     }

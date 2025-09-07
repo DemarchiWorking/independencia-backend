@@ -20,5 +20,6 @@ public class UsuarioDTO {
     private String telefone;
     private String foto; 
     private Long pontos;
+    private Boolean loja; 
     
 }              

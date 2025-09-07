@@ -68,7 +68,20 @@ public class EnderecoController {
             return ResponseEntity.notFound().build();
         }
     }
+    @GetMapping("/email")
+    public ResponseEntity<Endereco> getEnderecoPorEmail(String email) {
 
+        Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UUID usuarioId = usuarioLogado.getId();
+
+        Optional<Endereco> endereco = enderecoService.buscarEnderecoPorEmail(email);
+
+        if (endereco.isPresent()) {
+            return ResponseEntity.ok(endereco.get());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
     @PutMapping
     public ResponseEntity<Endereco> atualizar(@RequestBody Endereco enderecoAtualizado) {
         Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

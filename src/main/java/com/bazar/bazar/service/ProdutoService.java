@@ -4,7 +4,7 @@ import com.bazar.bazar.model.Categoria;
 import com.bazar.bazar.model.Produto;
 import com.bazar.bazar.model.Usuario;
 import com.bazar.bazar.repositories.ProdutoRepository;
-
+import com.bazar.bazar.repositories.UsuarioRepository;
 import jakarta.persistence.Column;
 import jakarta.transaction.Transactional;
 
@@ -23,11 +23,14 @@ import java.util.UUID;
 @Service 
 public class ProdutoService {
 
+    private final UsuarioRepository usuarioRepository;
+
     private final ProdutoRepository produtoRepository;
 
     @Autowired 
-    public ProdutoService(ProdutoRepository produtoRepository) {
+    public ProdutoService(ProdutoRepository produtoRepository, UsuarioRepository usuarioRepository) {
         this.produtoRepository = produtoRepository;
+        this.usuarioRepository = usuarioRepository;
     }
 
     public Produto createProduto(Produto produto) {
@@ -47,13 +50,17 @@ public class ProdutoService {
     public List<Produto> getMeusProdutos() {
         Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         
-        //produtoRepository.findByEmail(usuarioLogado.getEmail());
-        System.out.println("Usuário logado: " + usuarioLogado.getId());
         return produtoRepository.findByAutorId(usuarioLogado.getId());
+    }
+    public List<Produto> buscarProdutosUsuario(String email) {
+        Usuario usuarioLoja = usuarioRepository.findByEmail(email).orElseThrow(() -> new NoSuchElementException("Usuário não encontrado com email: " + email)); 
+
+        return produtoRepository.findByAutorId(usuarioLoja.getId());
     }
     public Page<Produto> getProdutosByCategoria(UUID categoriaId, Pageable pageable) {
         return produtoRepository.findByCategoriaId(categoriaId, pageable);
     } 
+    
     /*
      *     public List<Produto> getMeusProdutos() {
         // 1. Obtém o objeto de autenticação do contexto de segurança

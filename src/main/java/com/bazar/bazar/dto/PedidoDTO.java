@@ -20,7 +20,7 @@ public class PedidoDTO {
     private UsuarioDTO vendedor;
     private LocalDateTime dataCriacao;
     private LocalDateTime dataEntrega;
-    private UUID enderecoEntrega;
+    private EnderecoDTO enderecoEntrega;
     private Boolean remote;
     //private List<ItemPedidoDTO> itens;
 

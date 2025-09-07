@@ -31,9 +31,9 @@ public class Pedido {
     @JoinColumn(name = "vendedor_id", nullable = false)
     private Usuario vendedor;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "endereco_id")
-    private UUID enderecoEntrega;
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "endereco_entrega", nullable = false)
+    private Endereco enderecoEntrega;
 
     private Boolean remote;
     private LocalDateTime dataCriacao;
