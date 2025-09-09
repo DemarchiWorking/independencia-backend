@@ -33,21 +33,22 @@ public class ItemPedido {
 //    @NotNull(message = "O produto não pode ser nulo")
     private Produto produto;
 
-    @Column(name = "vendedor_id")
+    @ManyToOne   //  @NotNull(message = "O vendedor não pode ser nulo")
+    @JoinColumn(name = "vendedor_id", nullable = false) //     @Column(name = "vendedor_id")
     @JsonIgnore
-  //  @NotNull(message = "O vendedor não pode ser nulo")
-    private UUID vendedor;
+    private Usuario vendedor;
 
-    @Column(name = "comprador_id")
+
+    @ManyToOne  //  @NotNull(message = "O comprador não pode ser nulo")
+    @JoinColumn(name = "comprador_id", nullable = false)//    @Column(name = "comprador_id")
     @JsonIgnore
-  //  @NotNull(message = "O comprador não pode ser nulo")
-    private UUID comprador;
+    private Usuario comprador;
 
     @Column(nullable = false)
   //  @Positive(message = "A quantidade deve ser maior que zero")
     private int quantidade;
 
-    public ItemPedido(Pedido pedido, Produto produto, int quantidade, UUID vendedor, UUID comprador) {
+    public ItemPedido(Pedido pedido, Produto produto, int quantidade, Usuario vendedor, Usuario comprador) {
         this.pedido = pedido;
         this.produto = produto;
         this.quantidade = quantidade;

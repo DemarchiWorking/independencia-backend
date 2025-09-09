@@ -81,7 +81,7 @@ public class PedidoService {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Estoque insuficiente para o produto: " + produto.getNome());
                 }
 
-                ItemPedido itemPedido = new ItemPedido(novoPedido, produto, itemRequest.getQuantidade(), produto.getAutorId(), usuarioLogado.getId());
+                ItemPedido itemPedido = new ItemPedido(novoPedido, produto, itemRequest.getQuantidade(), produto.getAutor(), usuarioLogado);
                 novoPedido.addItem(itemPedido);
             }
         }
@@ -127,7 +127,7 @@ public class PedidoService {
                 Produto produto = produtoRepository.findById(itemRequest.getProdutoId())
                         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Produto não encontrado com ID: " + itemRequest.getProdutoId()));
 
-                ItemPedido novoItem = new ItemPedido(pedidoExistente, produto, itemRequest.getQuantidade(), produto.getAutorId(), usuarioLogado.getId());
+                ItemPedido novoItem = new ItemPedido(pedidoExistente, produto, itemRequest.getQuantidade(), produto.getAutor(), usuarioLogado);
                 pedidoExistente.addItem(novoItem);
             }
         }
@@ -158,7 +158,7 @@ public class PedidoService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Estoque insuficiente para o produto: " + produto.getNome());
         }
 
-        ItemPedido newItem = new ItemPedido(pedido, produto, itemRequest.getQuantidade(), produto.getAutorId(), usuarioLogado.getId());
+        ItemPedido newItem = new ItemPedido(pedido, produto, itemRequest.getQuantidade(), produto.getAutor(), usuarioLogado);
         pedido.addItem(newItem);
 
         return pedidoRepository.save(pedido);

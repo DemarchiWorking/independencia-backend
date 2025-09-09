@@ -1,6 +1,9 @@
 package com.bazar.bazar.dto;
 
+import com.bazar.bazar.model.Categoria;
 import com.bazar.bazar.model.Produto;
+import com.bazar.bazar.model.Usuario;
+
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,9 +18,8 @@ public class ProdutoResponseDTO {
     private int quantidade;
     private String imagem;
     private String icone;
-    private String categoria; 
-    private UUID categoriaId; 
-    private UUID autorId;
+    private Categoria categoria; 
+    private Usuario autor;
     private String descricao;
     private boolean ehAutor;
 
@@ -30,14 +32,14 @@ public class ProdutoResponseDTO {
         this.imagem = produto.getImagem();
         this.descricao = produto.getDescricao();
         this.icone = produto.getIcone();
-        this.categoriaId = produto.getCategoriaId();
+        this.categoria = produto.getCategoria();
 
         // Verifique se a categoria não é nula antes de tentar pegar o ID
         if (produto.getCategoria() != null) {
             this.categoria = produto.getCategoria();
         }
         
-        this.autorId = produto.getAutorId();
+        this.autor = produto.getAutor();
         this.ehAutor = isAutor;
     }
 }

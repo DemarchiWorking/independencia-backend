@@ -1,6 +1,5 @@
 package com.bazar.bazar.controller;
 
-import com.bazar.bazar.dto.ProdutoRequestDTO;
 import com.bazar.bazar.dto.ProdutoResponseDTO;
 import com.bazar.bazar.model.Categoria;
 import jakarta.transaction.Transactional;
@@ -10,6 +9,8 @@ import org.springframework.stereotype.Controller;
 
 import com.bazar.bazar.model.Produto;
 import com.bazar.bazar.model.Usuario;
+import com.bazar.bazar.request.ProdutoRequest;
+import com.bazar.bazar.service.CategoriaService;
 import com.bazar.bazar.service.ProdutoService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -34,32 +36,34 @@ import org.springframework.data.domain.Pageable;
 public class ProdutoController {
 
     private final ProdutoService produtoService;
+    private final CategoriaService categoriaService;
 
     
     @Autowired
-    public ProdutoController(ProdutoService produtoService) {
+    public ProdutoController(ProdutoService produtoService, CategoriaService categoriaService) {
         this.produtoService = produtoService;
+        this.categoriaService = categoriaService;
     }
 
     // Endpoint para criar um novo produto
     // POST http://localhost:8081/api/produtos
     @PostMapping
-    public ResponseEntity<Produto> createProduto(@RequestBody ProdutoRequestDTO requestDTO) {
-        Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    public ResponseEntity<Produto> createProduto(@RequestBody ProdutoRequest produtoRequest, @AuthenticationPrincipal Usuario usuarioLogado) {
+
+        Categoria categoria = categoriaService.getCategoriaById(produtoRequest.getCategoriaId())
+                .orElseThrow(() -> new NoSuchElementException("Categoria com o ID fornecido não foi encontrada."));
+        //Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Produto novoProduto = new Produto();
-        novoProduto.setNome(requestDTO.getNome());
-        novoProduto.setPreco(requestDTO.getPreco());
-        novoProduto.setQuantidade(requestDTO.getQuantidade());
-        novoProduto.setImagem(requestDTO.getImagem());
-        novoProduto.setIcone(requestDTO.getIcone());
-        novoProduto.setCategoria(requestDTO.getCategoria());
-        novoProduto.setCategoriaId(requestDTO.getCategoriaId());
+        novoProduto.setNome(produtoRequest.getNome());
+        novoProduto.setPreco(produtoRequest.getPreco());
+        novoProduto.setQuantidade(produtoRequest.getQuantidade());
+        novoProduto.setImagem(produtoRequest.getImagem());
+        novoProduto.setIcone(produtoRequest.getIcone());
+        novoProduto.setCategoria(categoria);
         novoProduto.setDataCriacao(LocalDateTime.now());
 
-        novoProduto.setAutorId(usuarioLogado.getId()); // Usando o id do autor
+        novoProduto.setAutor(usuarioLogado); 
         novoProduto = produtoService.createProduto(novoProduto);
-        System.out.println("Produto criado: " + novoProduto.getCategoriaId());
-        System.out.println("Produto criado. Usuário ID: " + usuarioLogado.getId());
 
         return new ResponseEntity<>(novoProduto, HttpStatus.CREATED);
     }
@@ -76,8 +80,8 @@ public class ProdutoController {
                     
                     if (principal instanceof Usuario) {
                         Usuario usuarioLogado = (Usuario) principal;
-                        if (produto.getAutorId() != null) {
-                            ehAutor = produto.getAutorId().equals(usuarioLogado.getId());
+                        if (produto.getAutor() != null) {
+                            ehAutor = produto.getAutor().getId().equals(usuarioLogado.getId());
                         }
                     }
                     
@@ -143,13 +147,13 @@ public class ProdutoController {
         
         Usuario usuarioLogado = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        produto.setAutorId(usuarioLogado.getId()); // Assumindo que o getId() retorna um tipo que pode ser convertido para String.
+        produto.setAutor(usuarioLogado); // Assumindo que o getId() retorna um tipo que pode ser convertido para String.
 
-        if (produto.getAutorId() == null) {
+        if (produto.getAutor() == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
         try {
-            Produto produtoAtualizado = produtoService.updateProduto(id, produto, produto.getAutorId());
+            Produto produtoAtualizado = produtoService.updateProduto(id, produto, produto.getAutor());
             return new ResponseEntity<>(produtoAtualizado, HttpStatus.OK);
         } catch (RuntimeException e) {
             System.err.println("Erro ao atualizar produto: " + e.getMessage());

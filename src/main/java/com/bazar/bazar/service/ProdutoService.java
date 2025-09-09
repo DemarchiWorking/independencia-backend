@@ -76,12 +76,15 @@ public class ProdutoService {
     public List<Produto> getProdutosByNome(String nome) {
         return produtoRepository.findByNomeContainingIgnoreCase(nome);
     }
+    public List<Produto> getCategoriaPorId(String nome) {
+    return produtoRepository.findByNomeContainingIgnoreCase(nome);
+    }
     //@Transactional(readOnly = true)
     public List<Categoria> getCategoriasDosProdutos() { // <-- Retorna List<Categoria>
         return produtoRepository.findDistinctCategoriasByProduto();
     }
 
-    public Produto updateProduto(UUID id, Produto produtoDetails, UUID autorId) {
+    public Produto updateProduto(UUID id, Produto produtoDetails, Usuario autor) {
         return produtoRepository.findById(id)
                 .map(produtoExistente -> {
                     produtoExistente.setNome(produtoDetails.getNome());
@@ -89,10 +92,10 @@ public class ProdutoService {
                     produtoExistente.setDescricao(produtoDetails.getDescricao());
                     produtoExistente.setQuantidade(produtoDetails.getQuantidade());
                     produtoExistente.setCategoria(produtoDetails.getCategoria());
-                    produtoExistente.setCategoriaId(produtoDetails.getCategoriaId());
+                    produtoExistente.setCategoria(produtoDetails.getCategoria());
                     produtoExistente.setImagem(produtoDetails.getImagem());
                     produtoExistente.setIcone(produtoDetails.getIcone());
-                    produtoExistente.setAutorId(autorId); 
+                    produtoExistente.setAutor(autor); 
                     
                     return produtoRepository.save(produtoExistente);
                 })

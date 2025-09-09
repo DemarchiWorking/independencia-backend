@@ -4,6 +4,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,11 +28,12 @@ public class Produto {
     public UUID id;
     private String nome;
     private double preco;
-    private String categoria;
-    @Column(name = "categoria_id")
-    private UUID categoriaId;
-    @Column(name = "autor_id")
-    private UUID autorId;
+    @ManyToOne
+    @JoinColumn(name = "categoria_id")//    @Column(name = "categoria_id")
+    private Categoria categoria;
+    @ManyToOne
+    @JoinColumn(name = "autor_id")//@Column(name = "autor_id")
+    private Usuario autor;
     private int quantidade;
     private String imagem;
     private String descricao;
